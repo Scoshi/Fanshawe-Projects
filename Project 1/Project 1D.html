@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+	<title>Project 1</title>
+ 	<meta name="viewport" content="initial-scale=1.0, user-scalable=yes">
+    <meta charset="utf-8">
+	<script>
+		// create global variables
+		var map = {};
+		var markers = [];
+		var place = [];
+		var globalPos;
+		
+		// onload event handler to create the initial map and map object
+		function initMap() {
+			// create a container to draw the map inside a <div> with options set
+			var mapCanvas = (document.getElementById("map"));
+			var mapOptions = {
+				center: new google.maps.LatLng(43.011987, -81.200276),
+				zoom: 13 
+			}
+
+			// call the constructor to create a new map object and then get your geo location
+			map = new google.maps.Map(mapCanvas, mapOptions);
+			getLocation();
+		}
+			
+		// Get and then set the map position based on the geo location
+		function getLocation() {
+		    if (navigator.geolocation) {
+		        navigator.geolocation.getCurrentPosition(showPosition);
+		    }
+		}
+		
+		// helper function for getLocation()
+		function showPosition(position) {
+			globalPos = {
+			lat: position.coords.latitude, 
+			lng: position.coords.longitude
+			};
+			
+			//center the map on current location and show
+			map.setCenter(globalPos);
+			var infoWindow = new google.maps.InfoWindow;
+			infoWindow.setPosition(globalPos);
+			infoWindow.setContent('Curent Location');
+			infoWindow.open(map);
+
+		}
+			
+		// use Google Places to find all near by gas stations that are open 
+		function gas() {
+			// delete any existing markers
+			deleteMarkers();
+
+			// create a request object
+			var request = {
+				location: globalPos, 
+				radius: '10000',
+				type: 'gas_station'
+
+			};
+
+			// create the service object
+			var service = new google.maps.places.PlacesService(map);
+			
+			// perform a search based on the request object and callback the "callback" function below
+			service.textSearch(request, callback);
+
+			// callback function as referenced to above
+			function callback(results, status) {
+				if (status === google.maps.places.PlacesServiceStatus.OK) {
+					for (var i = 0; i < results.length; i++){
+						addMarker(results[i]);
+					}
+				}
+			}
+			
+			// display all the pins
+			displayAllMarkers(map);
+		}
+
+		// try to get my gas station pin to show instead of the regular 
+		// pins but it will not resize properly 
+		var image = {
+			url: "images/gasPin.png",
+			scaledSize: new google.maps.Size(22, 32)
+		}
+			
+		// create a marker object and add the new marker (pin) to the marker array
+		function addMarker(place) {
+			// create a marker (pin) object that gives details about
+			// the gas station like address and phone number
+			var marker = new google.maps.Marker({
+				position: place.geometry.location,
+				map: map,
+				icon: image,
+				title: place.name + "\n" + place.formatted_address + "\n" + place.formatted_phone_number, 
+				animation: google.maps.Animation.DROP
+			});
+		
+			// add a "click" event handler to centre on the marker
+			marker.addListener('click', function() {
+				map.setZoom(16);
+				map.setCenter(marker.getPosition());
+			});
+			
+			// push the marker object onto the markers array
+			markers.push(marker);
+		}
+
+		// display all the marker objects (pins) in the marker array
+		function displayAllMarkers(map) {
+			for (var i = 0; i < markers.length; i++) {
+				markers[i].setMap(map);
+			}
+		}		
+			
+		// delete all map markers and init the markers array
+		function deleteMarkers() {
+			displayAllMarkers(null);
+			markers = [];
+		}
+	
+	</script>
+ 	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA4or_TUc3fGsef7fGWJ0eOVdyXSR9ay48&callback=initMap&libraries=places" async defer></script>
+	<style type="text/css">
+        body {
+            overflow: hidden;
+            background-color: #33cccc;
+        }
+
+        h1 {
+			font: normal 2.5em 'Lobster', arial, sans-serif;
+			text-shadow: 1px 1px #fff, 3px 3px 1px #999;
+		}
+
+
+        #map {
+            border-top: solid 1px buttonshadow;
+            border-right: solid 1px buttonshadow;
+            border-bottom: solid 1px buttonshadow;
+            border-left: solid 1px buttonshadow;
+            top: 10px;
+            width: 70%;
+            right: 10px;
+            bottom: 10px;
+            z-index: 0;
+            position: absolute;
+        }
+
+        #sideWin {
+        	float: left;
+        	border-top: solid 1px buttonshadow;
+            border-right: solid 1px buttonshadow;
+            border-bottom: solid 1px buttonshadow;
+            border-left: solid 1px buttonshadow;
+            top: 10px;
+            left: 10px;
+            width: 27%;
+            bottom: 10px;
+            z-index: 0;
+            position: absolute;
+            background-color: #4AC4FF;
+        }
+
+    </style>
+</head>
+<body>
+	<div id="sideWin">
+		<h1>Gas Station Locator</h1>
+		
+		<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed scelerisque urna justo, non lobortis metus luctus consequat. Phasellus ornare, nisl a molestie aliquet, risus mauris aliquet ipsum, sit amet suscipit orci nunc in nisi. Aliquam aliquet tortor in purus euismod dictum. Aliquam erat volutpat. In orci risus, venenatis vitae pulvinar eget, sodales in mi. Donec accumsan erat in bibendum fermentum. Pellentesque non dui sit amet mi dignissim lobortis. Aenean auctor urna quis egestas ornare. Morbi sodales, odio non dapibus pulvinar, dui augue lobortis erat, quis lacinia mi lorem sit amet urna. Aliquam facilisis vehicula nisl. Morbi vestibulum purus eu nulla ultricies, in interdum est facilisis. Nunc luctus lorem id dapibus lobortis. Sed molestie mauris egestas posuere finibus. Nunc sed eros eros. Donec auctor sed lorem vitae pharetra.</p>
+
+		<p>Sed pulvinar purus eget dapibus posuere. Aliquam lacinia augue metus, ut placerat felis vulputate in. Aliquam quis lacus ex. Praesent rhoncus diam a quam congue volutpat. Vivamus non lorem egestas est vehicula egestas. Morbi porttitor sollicitudin ipsum in elementum. Maecenas sit amet volutpat mi, id sodales metus.</p>
+
+		<input type="button" id="btnLoad"  value="Load Pins" style="position:absolute;bottom: 20px; left:10px" onclick="gas();" />
+	<input type="button" id="btnClear"  value="Clear Map" style="position:absolute;bottom: 20px; left: 100px" onclick="deleteMarkers();" />
+	</div>
+	<div id="map">
+	</div>
+</body>
+</html>
