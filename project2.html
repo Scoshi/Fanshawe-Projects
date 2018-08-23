@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head runat="server">
+    <title>DHTML</title>
+    <style type="text/css">
+        body {
+            background-color: #BFC9DC;
+        }
+
+        .Buttons {
+            position: absolute;
+            height: 25px;
+            font-family: Arial, Helvetica;
+            font-size: 11pt;
+            color: #002594;
+        }
+
+        .LblInfoGray {
+            font-family: Verdana, Arial, Helvetica;
+            font-size: 10pt;
+            color: #5a5a5a;
+            position: relative;
+            text-align: left;
+            padding-top: 4px;
+        }
+
+        .TableClass {
+            font-family: Verdana, Arial, Helvetica;
+            font-size: 9.0pt;
+        }
+
+        .BaseColumn {
+            text-align: center;
+        }
+
+        .AlphaColumn {
+            width: 40px;
+            cursor: pointer;
+            background-color: #C3DAF9;
+            border: 1px solid #002d96;
+        }
+
+    </style>
+    <script language="JavaScript" type="text/javascript">
+
+        var rows = 20;
+        var columns = 10;
+        var selectedRow = 100;
+        var selectedColumn = 100;
+        var selected;
+       
+        function createSpreadsheet() {
+
+            document.getElementById("SpreadsheetTable").innerHTML = buildTable(rows, columns);
+            loadData();
+        }
+
+        // ***************************************************
+        // function builds the table based on rows and columns
+        function buildTable(rows, columns) {
+            // start with the table declaration
+            var divHTML = "<table border='1' cellpadding='0' cellspacing='0' class='TableClass'>";
+
+            // next do the column header labels
+            divHTML += "<tr><th></th>";
+
+            for (var j = 0; j < columns; j++)
+                divHTML += "<th>" + String.fromCharCode(j + 65) + "</th>";
+
+            // closing row tag for the headers
+            divHTML += "</tr>";
+
+            // now do the main table area
+            for (var i = 1; i <= rows; i++) {
+                divHTML += "<tr>";
+                // ...first column of the current row (row label)
+                divHTML += "<td id='" + i + "_0' class='BaseColumn'>" + i + "</td>";
+
+                // ... the rest of the columns
+                for (var j = 1; j <= columns; j++)
+                    divHTML += "<td id='" + i + "_" + j + "' class='AlphaColumn' onclick='clickCell(this)'></td>";
+
+                // ...end of row
+                divHTML += "</tr>";
+            }
+
+            // finally add the end of table tag
+            divHTML += "</table>";
+
+            //alert(divHTML);
+            return divHTML;
+        }
+
+        // event handler fires when user clicks a cell
+        function enterData (k) {
+            if (k.keyCode === 13) {
+              //  function getFormula();
+                selected.innerHTML = document.getElementById("userInput").value;
+            }
+        }
+
+        // change colour of the select cell
+        function clickCell(ref) {
+            ref.style.background = "white";
+            if (selected != null) {
+                selected.style.background = "#C3DAF9";
+            }
+            selected = ref;
+        }
+
+        // clears all data from the table, must also save to keep clear
+        function clearData(ref) {
+            for (var i = 1; i <= rows; i++) {
+                for (var j = 1; j <= columns; j++) {
+                    document.getElementById(i + "_" + j).innerHTML = "";
+                }
+            }
+        }
+
+        // loads all saved data back into the correct cells
+        function loadData(ref) {
+            for (var i = 1; i <= rows; i++) {
+                for (var j = 1; j <= columns; j++) {
+                    var currentData = localStorage.getItem(i + "_" + j); 
+                        document.getElementById(i + "_" + j).innerHTML = currentData;
+                }
+            }
+        }
+
+        // saves all data into HTML5 local storage
+        function saveData(ref) {
+            for (var i = 1; i <= rows; i++) {
+                for (var j = 1; j <= columns; j++) {
+                    localStorage.setItem(i + "_" + j, document.getElementById(i + "_" + j).innerHTML);
+                }
+            }        
+        }
+
+        // determines if user entered a formula and returns an array
+        function getFormula(tbValue){
+            var pattern = /[:|\(|\)]/;
+            var ar = tbValue.split(pattern);
+            var sum = ar[0].toUpperCase();
+    
+            if (ar.length < 3)
+                return null;
+            else if (sum != "=SUM")
+                return null;
+            else
+            return ar;
+        }
+        
+
+    </script>
+</head>
+<body onload="createSpreadsheet()">
+    <div>
+        <input type="textbox" id="userInput" name="userInput" onkeyup="enterData(event);">
+        <input type="button" id="load" value="Load" onclick="loadData();" />
+        <input type="button" id="save" value="Save" onclick="saveData();" />
+        <input type="button" id="clear" value="Clear" onclick="clearData();" />
+        <br /><br />
+        <div id="SpreadsheetTable">
+        </div>
+    </div>
+</body>
+</html>
