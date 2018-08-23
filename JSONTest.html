@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Scott Midterm Test</title>
+    <meta charset="utf-8" />
+    <script>
+		var json = '{"titleArray":["Star Wars","Spectre","Mad Max: Fury Road"],"catArray":["Sci-Fi","Adventure","Sci-Fi"],"starArray":["Harrison Ford","Daniel Craig","Charlize Theron"]}';
+        
+        // ****************************************************
+        // startup event handler creates a <div> for each video
+        // and then adds the title, category and star for each
+        function buildData() {
+
+            //parse JSON into object
+            var dataObject = JSON.parse(json);
+
+            //get number of values in one of them
+            var numMovies = dataObject.titleArray.length;
+            
+            //divs based off number of values, and add style and border
+            var divHTML = "";
+
+            //for background variable. used to make sure that backgrounds don't stop changing after 10 inputs
+            var backvar = 0;
+
+            for (let t = 0; t < numMovies; t++){
+                backvar = t % 10;
+                divHTML += "<div id='movie" + t + "'style='background-color:#0080FF" + backvar + ";border:solid 1px black;'></div><br>";
+            }
+
+            //fill divs with data
+            document.getElementById("container").innerHTML = divHTML;
+            //loop through each div and insert data
+            for (let r = 0; r < numMovies; r++) {
+                var docstring = "movie" + r;
+                document.getElementById(docstring).innerHTML = dataObject.titleArray[r] + " - " + dataObject.catArray[r] + " - " + dataObject.starArray[r];
+            }
+
+        }
+
+    </script>
+</head>
+<body onload="buildData();">
+    <div id="container">
+    </div>
+</body>
+</html>
